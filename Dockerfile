@@ -31,21 +31,26 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 # Configura o Apache
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers ssl
 
 # Copia package.json e package-lock.json primeiro
 COPY package*.json ./
 
-# Instala dependências npm incluindo Flux
-RUN npm install && \
-    npm install --save-dev @babel/core @babel/preset-react flux
+# Instala dependências npm
+RUN npm install
 
 # Copia todos os arquivos do projeto
-COPY . /var/www/html/
+COPY . .
 
-# Configura as permissões
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Cria diretório de logs e configura permissões
+RUN mkdir -p storage/logs \
+    && touch storage/logs/laravel.log \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/public \
+    && find /var/www/html/storage -type f -exec chmod 664 {} \; \
+    && find /var/www/html/storage -type d -exec chmod 775 {} \;
 
 # Instala dependências PHP
 RUN composer install --no-dev --optimize-autoloader
@@ -53,11 +58,12 @@ RUN composer install --no-dev --optimize-autoloader
 # Compila os assets
 RUN npm run build
 
-# Copia a configuração do Apache
-COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+# Script de inicialização
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Expõe a porta padrão do Apache
 EXPOSE 80
 
-# Usa o Apache para servir a aplicação
-CMD ["apache2-foreground"]
+# Usa o script de inicialização
+CMD ["/usr/local/bin/start.sh"]
