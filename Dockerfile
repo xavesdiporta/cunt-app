@@ -31,29 +31,30 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 # Configura o Apache
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
-# Copia package.json e package-lock.json
-COPY package*.json vite.config.js ./
+# Copia package.json e package-lock.json primeiro
+COPY package*.json ./
 
-# Instala dependências npm
-RUN npm install
+# Instala dependências npm incluindo Flux
+RUN npm install && \
+    npm install --save-dev @babel/core @babel/preset-react flux
 
-# Copia os ficheiros do Laravel
-COPY . /var/www/html
+# Copia todos os arquivos do projeto
+COPY . /var/www/html/
 
-# Copia a configuração do Apache
-COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+# Configura as permissões
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Instala dependências PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Faz o build do Vite
+# Compila os assets
 RUN npm run build
 
-# Define permissões para storage e cache
-RUN chmod -R 775 storage bootstrap/cache && \
-    chown -R www-data:www-data /var/www/html
+# Copia a configuração do Apache
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Expõe a porta padrão do Apache
 EXPOSE 80
