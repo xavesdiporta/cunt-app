@@ -21,7 +21,7 @@
                     <h3 class="text-lg font-medium text-neutral-600 dark:text-neutral-300">
                         Palavrões Hoje
                     </h3>
-                    <p class="mt-2 text-4xl font-bold" style="color: #85FC6C"
+                    <p class="mt-2 text-4xl font-bold" style="color: #fd1d1d"
                     >
                         {{ app(\App\Http\Controllers\ContagemController::class)->getDashboardStats()['total_hoje'] }}
                     </p>
@@ -52,10 +52,10 @@
                                         datasets: [{
                                             label: 'Palavrões por Dia',
                                             data: this.dados.map(d => d.total),
-                                            borderColor: '#85FC6C',
+                                            borderColor: '#fd1d1d',
                                             tension: 0.4,
                                             fill: true,
-                                            backgroundColor: '#85FC6C'
+                                            backgroundColor: '#833ab4'
                                         }]
                                     },
                                     options: {
@@ -129,21 +129,22 @@
                 <!-- Grid de pessoas -->
                 <div class="grid h-full grid-cols-4 grid-rows-2">
                     <template x-for="pessoa in pessoas" :key="pessoa.id">
-                        <button type="button" @click="openModal(pessoa)" class="flex h-full w-full items-center justify-center border border-neutral-200 bg-white/50 p-8 text-2xl font-medium transition-colors hover:bg-[#85FC6C] hover:text-white dark:border-neutral-700 dark:bg-neutral-800/50" x-text="pessoa.nome">
+                        <button type="button" @click="openModal(pessoa)" class="flex h-full w-full items-center justify-center border border-neutral-200 bg-white/50 p-8 text-2xl font-medium transition-all hover:text-white dark:border-neutral-700 dark:bg-neutral-800/50 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity bg-gradient-to-r from-[#833ab4] to-[#fd1d1d]"></div>
+                            <span class="relative z-10" x-text="pessoa.nome"></span>
                         </button>
                     </template>
                 </div>
 
                 <!-- Modal -->
-                <div
-                    x-show="showModal"
+                <div x-show="showModal"
                     x-cloak
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
                     @click.self="showModal = false">
                     <div class="w-full max-w-4xl rounded-xl bg-white p-8 dark:bg-neutral-800">
                         <div class="mb-6 flex items-center justify-between">
                             <h3 class="text-3xl font-semibold">
-                                Escolher palavrão para: <span x-text="currentPerson?.nome" style="color: #85FC6C"></span>
+                                Escolher palavrão para: <span x-text="currentPerson?.nome" style="color: #ff3838"></span>
                             </h3>
                             <button type="button" @click="showModal = false" class="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white">
                                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +158,7 @@
                                     @csrf
                                     <input type="hidden" name="pessoa_id" x-bind:value="currentPerson?.id">
                                     <input type="hidden" name="palavra_id" x-bind:value="palavrao.id">
-                                    <button type="submit" class="group relative w-full rounded-xl border border-neutral-200 bg-white/50 p-6 text-xl font-medium transition-colors hover:bg-blue-500 hover:text-white dark:border-neutral-700 dark:bg-neutral-800/50">
+                                    <button type="submit" class="group relative w-full rounded-xl border border-neutral-200 bg-white/50 p-6 text-xl font-medium transition-colors hover:bg-[#ff3838] hover:text-white dark:border-neutral-700 dark:bg-neutral-800/50">
                                         <span x-text="palavrao.nome"></span>
                                         <span class="absolute bottom-2 right-2 rounded-full bg-green-100 px-2 py-0.5 text-sm font-medium text-green-800 transition-colors group-hover:bg-white/20 group-hover:text-white dark:bg-green-900/30 dark:text-green-300"
                                             x-text="palavrao.valor.toFixed(2) + '€'">

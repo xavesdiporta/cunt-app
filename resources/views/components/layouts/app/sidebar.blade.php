@@ -7,7 +7,24 @@
     <script src="//unpkg.com/alpinejs" defer></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
+        .animate-gradient {
+            animation: gradient 3s linear infinite;
+        }
+
+    </style>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
@@ -22,7 +39,7 @@
                 </flux:navlist.group>
             </flux:navlist>
             <flux:navlist variant="outline">
-                    <flux:navlist.item icon="puzzle-piece" :href="route('table-results')" :current="request()->routeIs('table-results')" wire:navigate>{{ __('Pontuações') }}</flux:navlist.item>
+                    <flux:navlist.item icon="trophy" :href="route('table-results')" :current="request()->routeIs('table-results')" wire:navigate>{{ __('Pontuações') }}</flux:navlist.item>
             </flux:navlist>
 
             <flux:spacer />
