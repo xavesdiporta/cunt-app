@@ -32,7 +32,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 
 # Configura o Apache
 RUN a2enmod rewrite
-COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Copia package.json e package-lock.json
 COPY package*.json vite.config.js ./
@@ -42,6 +41,9 @@ RUN npm install
 
 # Copia os ficheiros do Laravel
 COPY . /var/www/html
+
+# Copia a configuração do Apache
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Instala dependências PHP
 RUN composer install --no-dev --optimize-autoloader
