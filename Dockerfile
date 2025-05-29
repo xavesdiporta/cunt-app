@@ -23,6 +23,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
         gd intl mbstring exif bcmath zip pcntl pdo pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Configura o Apache
+RUN a2enmod rewrite headers ssl
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -30,20 +34,25 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Configura o Apache
-RUN a2enmod rewrite headers ssl
-
 # Copia package.json e package-lock.json primeiro
 COPY package*.json ./
-
-# Instala dependências npm
 RUN npm install
 
-# Copia todos os arquivos do projeto
+# Copia o código da aplicação
 COPY . .
 
-# Cria diretório de logs e configura permissões
+# Instala dependências PHP
+RUN composer install --no-dev --optimize-autoloader
+
+# Compila os assets
+RUN npm run build
+
+# Configura permissões
 RUN mkdir -p storage/logs \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p bootstrap/cache \
     && touch storage/logs/laravel.log \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
@@ -51,12 +60,6 @@ RUN mkdir -p storage/logs \
     && chmod -R 775 /var/www/html/public \
     && find /var/www/html/storage -type f -exec chmod 664 {} \; \
     && find /var/www/html/storage -type d -exec chmod 775 {} \;
-
-# Instala dependências PHP
-RUN composer install --no-dev --optimize-autoloader
-
-# Compila os assets
-RUN npm run build
 
 # Script de inicialização
 COPY docker/start.sh /usr/local/bin/start.sh
